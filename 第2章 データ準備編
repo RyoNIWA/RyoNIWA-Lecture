@@ -90,10 +90,10 @@ RyonoiMac:~ ryoniwa$ cd
 RyonoiMac:~ ryoniwa$ cd Desktop/
 RyonoiMac:Desktop ryoniwa$ fastq-dump --split-files SRR5407012.sra
 
-アウトプットされるファイルは全てデスクトップで確認できる。ただし、このまま開くのはお勧めできない。普通のパソコンだとしばらく動かせなくなる。それほど、NGSのファイルは重たいのだ。
+アウトプットされるファイルは全てデスクトップで確認できる。(1番がフォワード、2番がリバース) ただし、このまま開くのはお勧めできない。普通のパソコンだとしばらく動かせなくなる。それほど、NGSのファイルは重たいのだ。
 どうしても中身が見たければheadコマンドを使う。上から10行を確認できる。
 
-head SRR5407012_1.fastq 
+RyonoiMac:Desktop ryoniwa$ head SRR5407012_1.fastq 
 @SRR5407012.1 1 length=150
 CTTTTTGATCGTATTATGGTAACGAAAAGTTCCATGCGCCATGGCCGCAATGCAACTTTTCACCAACTAACAATTAGTTGTTTACTTTTACGACTTGCTTGCCGTTGTAGTATCCACAACTTGGGCAAACACGGTGTGATACACGTAATT
 +SRR5407012.1 1 length=150
