@@ -1,1 +1,108 @@
+#SRAからデータをダウンロードする
+SRAはSequence Read Archiveの略で、その名の通りシーケンスデータをレポジトリしているデータベースである。
+基本的にはDDBJ SRA、 NCBI SRA、 EMBL-EBI ENAの3つのデータベースがあり、日本のデータベースからダウンロードするのが一番早い。
+例えば、「ゲノムアセンブリした」というような論文にはAccession Numberと呼ばれる番号が記載されているので、これをデータベースで検索する。
 
+#今回は適当に検索して、一番最初にヒットしたLactobacillus delbrueckiiのゲノムデータをアセンブルすることにした。ただし、基本的にはアルファベットを変えてデータを落とせばいいだけなので、好きな乳酸菌やその他菌株があれば論文で探して落としてもらって構わない。
+Complete Genome Sequencing of Lactobacillus plantarum ZLP001, a Potential Probiotic That Enhances Intestinal Epithelial Barrier Function and Defense Against Pathogens in Pigs
+
+早速データをダウンロードしていきたい。せっかくなので、日本サーバのDDBJ SRAで検索していく。
+1. GoogleでDDBJ SRAを検索して、トップでヒットしたサイトを開く。
+2. 真ん中の方にある検索をクリック。
+3. 一番上のAccessionに論文中に出てくるAccession Numberを入れる。(先の論文であればSRP102895)
+4. 右のほうにあるExperimentのSRAをクリック、その後SRR5407012をクリック。
+5. SRR5407012.sraをクリック。ダウンロードが始まるので少し待つ。
+
+ここで、ダウンロードのフォルダを開くとSRR5407012.sraがあるはずである。ただ、ここで問題なのがSRR5407012.sraが特殊な形式であり、開くことができないという点にある。
+そこで、通常のNGSのアウトプット形式であるfastqファイルに書き換えたい。そのために、sra-toolkitという先のNCBI SRAが公開しているソフトをダウンロードして、パスを通す。
+
+1. まずは以下サイトにアクセスする。
+https://www.ncbi.nlm.nih.gov/sra/docs/toolkitsoft/
+2. 続いて、MacOS 64bitのSRA toolkitをクリックしてダウンロードする。
+
+ただし、通常のアプリケーションと異なり、SRA toolkitはグラフィカルユーザーインターフェースとかではないので、いわゆるパスを通すという作業が必要になる。
+パスを通すというのはプログラムの名前だけでプログラムをサクッと実行できるようにすることである。ざっくり言えば、ポケモンでピカチュウにカミナリという攻撃を覚えさせるのと同じである。
+
+さて、SRA toolkitを早速使えるようにする。その前に一旦SRA toolkitの入ったフォルダを解凍しデスクトップに移す。ここからは作業を丁寧に行っていく。
+まずはTerminal上でSRA toolkitを開いてみる。ターミナルで表示される文字はユーザ名により異なる。作業はMacBook Airで行っているが、本文はiMacで書いているので、ユーザはiMacとなっているが気にしないでほしい。
+使うコマンドはたった2つである。残りのコマンドはコピペすれば良い。
+
+cd: Change Directory
+ディレクトリを変更。使い方はcd [ディレクトリ名]
+
+pwd: Print Working Directory
+今どこのディレクトリにいるのかを教えてくれる。使い方はpwd
+
+ls: List segments
+今いるディレクトリの中にあるファイルやディレクトリを教えてくれる使い方はls
+
+ちなみにTabボタンをいかにうまく使うかがコマンドを早く書くコツだと考えてほしい。
+そのディレクトリ内で固有のワードになった時点でTabを押せば残りはパソコンが勝手に書いてくれる。
+
+#SRA Toolkitの場所の確認
+RyonoiMac:~ ryoniwa$ cd Desktop/
+RyonoiMac:Desktop ryoniwa$ ls
+
+そうすると、sratoolkit.2.9.6-1-mac64というディレクトリが存在すると考えられる。
+バージョン名が違うかもしれないが、おおよそこの名前であるだろう。
+
+#SRA Toolkitの中身
+RyonoiMac:Desktop ryoniwa$ cd sratoolkit.2.9.6-1-mac64/
+RyonoiMac:sratoolkit.2.9.6-1-mac64 ryoniwa$ ls
+
+CHANGES			README.md		schema
+README-blastn		bin
+README-vdb-config	example
+
+RyonoiMac:sratoolkit.2.9.6-1-mac64 ryoniwa$ cd bin
+RyonoiMac:bin ryoniwa$ pwd
+/Users/ryoniwa/sratoolkit.2.9.6-1-mac64/bin
+
+となる。このうち、binが重要なファイルである。このbinにパスを通すとSRA Toolkitが使えるようになる。
+
+そこで、早速パスを通していく。以下をコピペしてほしい。
+vi ~/.bash_profile
+
+一度リターンを押すと色々緑の文字で書かれたのが出てくる。
+Swap file "~/.bash_profile.swp" already exists!
+[O]pen Read-Only, (E)dit anyway, (R)ecover, (D)elete it, (Q)uit, (A)bort:
+Eを押すと編集できる。
+
+一番下の行 (本来どこでもいいが) に以下を書く。ここでpwdの後の結果をコピペすると早い。
+ディレクトリなのでbinの後には/を入れる。
+export PATH=$PATH:/Users/ryoniwa/Desktop/sratoolkit.2.9.6-1-mac64/bin/
+
+ESCボタンを押して、:wqを押してリターンすると保存できる。続いて以下を実行する。
+source ~/.bash_profile
+これを行うとコマンドが反映されて使えるようになる。
+
+試しにSRA toolkitの一つの機能でパスが通ったか確かめる。
+fastq-dump -h
+
+色々出てきたら成功。
+
+続いて、ファイルを処理していく。
+先ほどダウンロードしたSRAファイルを全てデスクトップに移しておく。
+今のディレクトリがDesktopとなるようにする。どのディレクトリにいても、cd単発でコマンドを動かすと戻れる。
+もしくはcd ..でも一つ前のディレクトリに戻れる。今のディレクトリはRyonoiMac:[今のディレクトリ]で確認可能。
+今回はペアエンドリードのデータなので、別々に出力させる。(--split-filesオプションを使用)
+RyonoiMac:~ ryoniwa$ cd
+RyonoiMac:~ ryoniwa$ cd Desktop/
+RyonoiMac:Desktop ryoniwa$ fastq-dump --split-files SRR5407012.sra
+
+アウトプットされるファイルは全てデスクトップで確認できる。ただし、このまま開くのはお勧めできない。普通のパソコンだとしばらく動かせなくなる。それほど、NGSのファイルは重たいのだ。
+どうしても中身が見たければheadコマンドを使う。上から10行を確認できる。
+
+head SRR5407012_1.fastq 
+@SRR5407012.1 1 length=150
+CTTTTTGATCGTATTATGGTAACGAAAAGTTCCATGCGCCATGGCCGCAATGCAACTTTTCACCAACTAACAATTAGTTGTTTACTTTTACGACTTGCTTGCCGTTGTAGTATCCACAACTTGGGCAAACACGGTGTGATACACGTAATT
++SRR5407012.1 1 length=150
+AAFFFJJJJJJJJJJJJJFJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJFJJAFJJJJJJJFJJJJJAJJJJJFJJFJJJJFAJFJJJJJJJJFFJJJAJJF-FFJJJJFFJF<FFFJJJJF<FJF
+@SRR5407012.2 2 length=150
+AACGGCTCGGATTGCGGTACAGGCAGCGCTAAGTGGTCACTTAGTTTTAAGTACTATTCATGCGCGCGGTGTCTACGGGATTATTCCCCGGTTGACGCAATTGGGAGTGGAAGCCGCTGTTTTGGAGCAGGCTTTAACTGCAATGTCCTA
++SRR5407012.2 2 length=150
+AAFFFJFJJJFJJFJFJFJFJFFFJJJJFJJJ<JFFJJJJAFJJFAJJJJJJJAAFFJJJAJJJJFFJJJJJJJJJJJJJJJJJJJJJFFFJJJJFFJFJFFFJFFF<JFFJFJAFAAF)7AFJJJJJJJJFFJJJJJJJJJJFJFJFJJ
+@SRR5407012.3 3 length=150
+AACATAAGATCCCCTCCTCAATTGTCACTATAACGCCCTGACAACATGATAGCCACCAAGATGCACAGAGGCCCGAAATCTTTTCTATGCCTATCGATTCCAGCCTAATACTGAACAAGTCTGGAATGGTTGCCCTTGTCTATCATTCCA
+
+これで全ての準備は整った。続いて、データ解析に移る。
